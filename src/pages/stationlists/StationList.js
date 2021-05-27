@@ -67,12 +67,14 @@ class StationLists extends React.Component {
 }
 
 export default connect(
+  //mapStateToProps와 같은것
   (state) => ({
     stations: state.apis.data,
     loading: state.apis.pending,
     error: state.apis.error,
   }),
+  //mapDispatchToProps와 같은것
   (dispatch) => ({
     APIActions: bindActionCreators(apiActions, dispatch),
-  }),
+  })
 )(StationLists);

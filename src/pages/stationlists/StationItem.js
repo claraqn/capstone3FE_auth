@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { Progress, Button } from 'reactstrap';
 import LinksGroup from '../../components/Sidebar/LinksGroup/LinksGroup';
 import s from './StationList.module.scss';
+
 class StationItem extends Component {
   render() {
     const {

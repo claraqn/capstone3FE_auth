@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Switch, Route, Redirect } from 'react-router';
+import { Switch, Route, Redirect, Router } from 'react-router';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
@@ -13,23 +13,40 @@ import LayoutComponent from '../components/Layout';
 import Login from '../pages/login';
 import Register from '../pages/register';
 import { logoutUser } from '../actions/user';
+import { LoginPage } from '../pages/login/LoginPage';
+import { history } from '../_helpers';
 
-const PrivateRoute = ({ dispatch, component, ...rest }) => {
-  if (
-    !Login.isAuthenticated(JSON.parse(localStorage.getItem('authenticated')))
-  ) {
-    dispatch(logoutUser());
-    return <Redirect to="/login" />;
-  } else {
-    return (
-      // eslint-disable-line
-      <Route
-        {...rest}
-        render={(props) => React.createElement(component, props)}
-      />
-    );
-  }
-};
+// const PrivateRoute = ({ dispatch, component, ...rest }) => {
+//   if (
+//     !Login.isAuthenticated(JSON.parse(localStorage.getItem('authenticated')))
+//   ) {
+//     dispatch(logoutUser());
+//     return <Redirect to="/login" />;
+//   } else {
+//     return (
+//       // eslint-disable-line
+//       <Route
+//         {...rest}
+//         render={(props) => React.createElement(component, props)}
+//       />
+//     );
+//   }
+// };
+
+export const PrivateRoute = ({ component: Component, ...rest }) => (
+  <Route
+    {...rest}
+    render={(props) =>
+      localStorage.getItem('user') ? (
+        <Component {...props} />
+      ) : (
+        <Redirect
+          to={{ pathname: '/login', state: { from: props.location } }}
+        />
+      )
+    }
+  />
+);
 
 const CloseButton = ({ closeToast }) => (
   <i onClick={closeToast} className="la la-close notifications-close" />
@@ -46,19 +63,40 @@ class App extends React.PureComponent {
         />
         <BrowserRouter>
           <Switch>
-            <Route path="/" exact render={() => <Redirect to="/app/main" />} />
-            <Route
-              path="/app"
-              exact
-              render={() => <Redirect to="/app/main" />}
-            />
-            <PrivateRoute
+            <Router history={history}>
+              <div>
+                <Route
+                  path="/"
+                  exact
+                  render={() => <Redirect to="/app/main" />}
+                />
+                <Route
+                  path="/app"
+                  exact
+                  render={() => <Redirect to="/app/main" />}
+                />
+                {/* <Route path="/app/main" component={LayoutComponent} /> */}
+
+                <Route
+                  path="/app"
+                  // dispatch={this.props.dispatch}
+                  // component={LayoutComponent}
+                  component={LayoutComponent}
+                  // render={() => <Redirect to="/app/main" />}
+                />
+                <Route path="/login" exact component={LoginPage} />
+              </div>
+            </Router>
+
+            {/* <PrivateRoute
               path="/app"
               dispatch={this.props.dispatch}
               component={LayoutComponent}
-            />
+            /> */}
             <Route path="/register" exact component={Register} />
-            <Route path="/login" exact component={Login} />
+            {/* <Route path="/login" exact component={Login} /> */}
+            {/* <Route path="/login" exact component={LoginPage} /> */}
+
             <Route path="/error" exact component={ErrorPage} />
             <Route component={ErrorPage} />
             <Redirect from="*" to="/app/main/dashboard" />

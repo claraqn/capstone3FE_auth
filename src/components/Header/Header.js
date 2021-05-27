@@ -21,6 +21,7 @@ import BellIcon from '../Icons/HeaderIcons/BellIcon';
 import SettingsIcon from '../Icons/HeaderIcons/SettingsIcon';
 import BurgerIcon from '../Icons/HeaderIcons/BurgerIcon';
 import ArrowIcon from '../Icons/HeaderIcons/ArrowIcon';
+import user from '../../assets/people/user.png';
 
 import { logoutUser } from '../../actions/user';
 import {
@@ -34,6 +35,9 @@ import avatar from '../../assets/people/a7.jpg';
 
 import s from './Header.module.scss';
 import 'animate.css';
+import { Link } from 'react-router-dom';
+import { userService } from '../../actions/user.service';
+import { userActions } from '../../actions/user.actions';
 
 class Header extends React.Component {
   static propTypes = {
@@ -62,6 +66,10 @@ class Header extends React.Component {
       searchOpen: false,
       notificationsOpen: false,
     };
+  }
+
+  componentDidMount() {
+    this.props.dispatch(userActions.getAll());
   }
 
   toggleNotifications = () => {
@@ -123,6 +131,7 @@ class Header extends React.Component {
   }
 
   render() {
+    const { users } = this.props;
     return (
       <Navbar className={`d-print-none `}>
         <div className={s.burger}>
@@ -153,10 +162,19 @@ class Header extends React.Component {
                   //rounded-circle, thumb-sm ,, 부트스트랩 css
                   className={`${s.avatar} rounded-circle thumb-sm float-left`}
                 >
-                  <img src={avatar} alt="..." />
+                  <img src={user} alt="..." />
                 </span>
                 <span className={`small d-sm-down-none ${s.accountCheck}`}>
-                  사용자이름&nbsp;&nbsp;
+                  {/* 사용자이름&nbsp;&nbsp; */}
+                  {users.items && (
+                    <ul>
+                      {users.items.map((user, index) => (
+                        <li key={user.id}>
+                          {user.firstName + ' ' + user.lastName}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </span>
               </DropdownToggle>
             </Dropdown>
@@ -220,13 +238,14 @@ class Header extends React.Component {
             </Dropdown>
 
             <NavItem>
-              <NavLink
-                onClick={this.doLogout}
+              <Link
+                // onClick={this.doLogout}
                 className={`${s.navItem} text-white`}
-                href="#"
+                // href="#"
+                to={`/login`}
               >
                 <PowerIcon className={s.headerIcon} />
-              </NavLink>
+              </Link>
             </NavItem>
           </Nav>
         </div>
@@ -236,10 +255,14 @@ class Header extends React.Component {
 }
 
 function mapStateToProps(store) {
+  const { users, authentication } = store;
+  const { user } = authentication;
   return {
     isSidebarOpened: store.navigation.sidebarOpened,
     sidebarVisibility: store.navigation.sidebarVisibility,
     sidebarPosition: store.navigation.sidebarPosition,
+    user,
+    users,
   };
 }
 
